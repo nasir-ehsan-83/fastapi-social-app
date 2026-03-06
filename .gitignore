@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+fsapi/
+.env
+
+# Linux / Fedora
+.directory
+.Trash-*
+.fuse_hidden*
+
+# Editors
+.vscode/
+.idea/
+
+# Database 
+*.sql
+*.dump
+.pgpass
+
+# Frontend 
+node_modules/
+dist/
+.env.local
+
