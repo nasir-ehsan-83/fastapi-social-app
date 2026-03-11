@@ -1,11 +1,9 @@
-from src.fastapi_offline_docs.offline_docs import  setup_offline_docs
+from backend.fastapi_offline_docs.offline_docs import  setup_offline_docs
 from fastapi import FastAPI
 from . import models, database
 from .routers import post, user, auth, vote
-from .config import settings
-models.Base.metadata.create_all(bind = database.engine)
 
-print(settings.database_hostname)
+models.Base.metadata.create_all(bind = database.engine)
 
 app = FastAPI(
     docs_url=None,
