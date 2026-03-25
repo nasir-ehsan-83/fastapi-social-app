@@ -10,7 +10,7 @@ def create_user(user_in: UserCreate, db: Session) -> User:
     hashed_password = hash(user_in.password)
     user_in.password = hashed_password
 
-    new_user = User(**user_in)
+    new_user = User(**user_in.dict())
     # add user into database
     db.add(new_user)
     # commit the changes
@@ -28,3 +28,22 @@ def get_user_by_email(email: str, db: Session) -> User:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with email: {email} does not exist!")
     
     return user
+
+def update_user_by_id(id: int, updated_user: UserCreate, db: Session):
+    # get user from database
+    user_query = db.query(User).filter(User.id == id)
+
+    # if the user by specific id does not exist
+    if user_query.first() is None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with id: {id} does not exist")
+    
+    # hash the password 
+    updated_user.password = hash(updated_user.password)
+    print(id)
+    # save updated user
+    user_query.update(updated_user.dict() , synchronize_session = False)
+    print(user_query.first())
+    # commit changes
+    db.commit()
+
+    return user_query.first()
