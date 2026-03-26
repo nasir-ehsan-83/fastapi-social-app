@@ -1,16 +1,27 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 from app.models.user import User
 from app.core.security import hash
 
 def create_user(user_in: UserCreate, db: Session) -> User:
+    # check does the user already exist
+    user_by_email = db.query(User).filter(User.email == user_in.email).first()
+    user_by_username = db.query(User).filter(User.username == user_in.username).first()
+    
+    if user_by_email:
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = f"User with email: {user_in.email} already exist")
+
+    if user_by_username:
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = f"User whit username: {user_in.username} already exist.")
+    
     # hash the user_in.password before storing in the database
     hashed_password = hash(user_in.password)
     user_in.password = hashed_password
 
-    new_user = User(**user_in.dict())
+    new_user = User(**user_in.model_dump())
     # add user into database
     db.add(new_user)
     # commit the changes
@@ -20,7 +31,7 @@ def create_user(user_in: UserCreate, db: Session) -> User:
     return new_user
 
 def get_user_by_email(email: str, db: Session) -> User:
-    # find the user from database
+    # find the user from database by specific email
     user = db.query(User).filter(User.email == email).first()
 
     # if the user by specific email does not exist return an exception
@@ -29,21 +40,28 @@ def get_user_by_email(email: str, db: Session) -> User:
     
     return user
 
-def update_user_by_id(id: int, updated_user: UserCreate, db: Session):
-    # get user from database
-    user_query = db.query(User).filter(User.id == id)
-
-    # if the user by specific id does not exist
-    if user_query.first() is None:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with id: {id} does not exist")
+def get_user_by_username(username: str, db: Session) -> User:
+    # find the user by specific username
+    user = db.query(User).filter(func.lower(User.username) == func.lower(username)).first()
+   
+    if not user:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with username: {username} does not exist.")
     
-    # hash the password 
-    updated_user.password = hash(updated_user.password)
-    print(id)
-    # save updated user
-    user_query.update(updated_user.dict() , synchronize_session = False)
-    print(user_query.first())
-    # commit changes
-    db.commit()
+    return user
 
-    return user_query.first()
+def update_user_by_id(id: int, updated_user: UserUpdate, db: Session) -> User:
+    user_query = db.query(User).filter(User.id == id)
+    user = user_query.first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {id} does not exist")
+    
+    data = updated_user.model_dump(exclude_unset=True)
+    if "password" in data:
+        data["password"] = hash(data["password"])
+
+    user_query.update(data, synchronize_session=False)
+    db.commit()
+    db.refresh(user)  # ensure returned object is updated
+
+    return user
