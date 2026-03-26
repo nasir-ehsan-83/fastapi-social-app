@@ -6,7 +6,7 @@ def hash(password: str) -> str:
     password_bytes = password.encode("utf-8")[:72]
     password_truncade = password_bytes.decode("utf-8", errors = "ingore")
 
-    return password_context.hash(password_context)
+    return password_context.hash(password_truncade)
 
 def verify(plain_password: str, hashed_password: str) -> bool:
     if not hashed_password:
