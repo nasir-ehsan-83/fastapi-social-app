@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserOut, UserUpdate
-from app.services.user_service import create_user, get_user_by_email, update_user_by_id, get_user_by_username
+from app.services.user_service import create_user, get_user_by_email, update_user_by_id, get_user_by_username, get_user_by_id, delete_user_by_id
 
 router = APIRouter(
     prefix = '/users',
@@ -28,8 +28,17 @@ def get_user_email(email: str, db: Session = Depends(get_db)) -> User:
 def get_user_username(username: str, db: Session = Depends(get_db)) -> User:
     return get_user_by_username(username, db)
 
+# get user by id
+@router.get('/id/{id}', response_model = UserOut)
+def get_user_id(id: int, db: Session = Depends(get_db)):
+    return get_user_by_id(id, db)
+
 # update user by id
 @router.put('/id/{id}', response_model = UserOut)
 def update_user(id: int, updated_user: UserUpdate, db: Session = Depends(get_db)) -> User:
     # call update_user() from user_service 
     return update_user_by_id(id, updated_user, db)
+
+@router.delete('/id/{id}')
+def delete_user_id(id: int, db: Session = Depends(get_db)):
+    return delete_user_by_id(id, db)

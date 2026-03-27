@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Response, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -49,6 +49,14 @@ def get_user_by_username(username: str, db: Session) -> User:
     
     return user
 
+def get_user_by_id(id: int, db: Session) -> User:
+    user = db.query(User).filter(User.id == id).first()
+
+    if not user:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User by id: {id} does not exist.")
+    
+    return user
+
 def update_user_by_id(id: int, updated_user: UserUpdate, db: Session) -> User:
     user_query = db.query(User).filter(User.id == id)
     user = user_query.first()
@@ -65,3 +73,14 @@ def update_user_by_id(id: int, updated_user: UserUpdate, db: Session) -> User:
     db.refresh(user)  # ensure returned object is updated
 
     return user
+
+def delete_user_by_id(id: int, db: Session):
+    user_query = db.query(User).filter(User.id == id)
+
+    if not user_query.first():
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User by id: {id} does not exist")
+    
+    user_query.delete(synchronize_session = False)
+    db.commit()
+
+    return Response(status_code = status.HTTP_204_NO_CONTENT)
