@@ -30,6 +30,11 @@ def create_user(user_in: UserCreate, db: Session) -> User:
 
     return new_user
 
+def get_all_users(db: Session) -> User:
+    users = db.query(User).all()
+
+    return users
+
 def get_user_by_email(email: str, db: Session) -> User:
     # find the user from database by specific email
     user = db.query(User).filter(User.email == email).first()
