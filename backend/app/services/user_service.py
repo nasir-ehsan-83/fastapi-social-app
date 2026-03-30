@@ -1,70 +1,66 @@
 from fastapi import HTTPException, Response, status
-from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy import func, update, delete
 
 from app.schemas.user import UserCreate, UserUpdate
 from app.models.user import User
 from app.core.security import hash
 
-def create_user(user_in: UserCreate, db: Session) -> User:
-    # check does the user already exist
-    user_by_email = db.query(User).filter(User.email == user_in.email).first()
-    user_by_username = db.query(User).filter(User.username == user_in.username).first()
-    
-    if user_by_email:
-        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = f"User with email: {user_in.email} already exist")
+async def create_user(user_in: UserCreate, db: AsyncSession) -> User:
+   
+    email_query = await db.execute(select(User).filter(User.email == user_in.email))
+    if email_query.scalars().first():
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"User with email: {user_in.email} already exists")
 
-    if user_by_username:
-        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = f"User whit username: {user_in.username} already exist.")
+   
+    username_query = await db.execute(select(User).filter(User.username == user_in.username))
+    if username_query.scalars().first():
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"User with username: {user_in.username} already exists.")
     
-    # hash the user_in.password before storing in the database
-    hashed_password = hash(user_in.password)
-    user_in.password = hashed_password
+    
+    user_data = user_in.model_dump()
+    user_data["password"] = hash(user_data["password"])
 
-    new_user = User(**user_in.model_dump())
-    # add user into database
+    new_user = User(**user_data)
     db.add(new_user)
-    # commit the changes
-    db.commit()
-    db.refresh(new_user)
-
+    
+    await db.commit() 
+    await db.refresh(new_user)
     return new_user
 
-def get_all_users(db: Session) -> User:
-    users = db.query(User).all()
+async def get_all_users(db: AsyncSession):
+    result = await db.execute(select(User))
+    return result.scalars().all()
 
-    return users
-
-def get_user_by_email(email: str, db: Session) -> User:
-    # find the user from database by specific email
-    user = db.query(User).filter(User.email == email).first()
-
-    # if the user by specific email does not exist return an exception
-    if not user:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with email: {email} does not exist!")
+async def get_user_by_email(email: str, db: AsyncSession) -> User:
+    result = await db.execute(select(User).filter(User.email == email))
+    user = result.scalars().first()
     
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with email: {email} does not exist!")
     return user
 
-def get_user_by_username(username: str, db: Session) -> User:
-    # find the user by specific username
-    user = db.query(User).filter(func.lower(User.username) == func.lower(username)).first()
+async def get_user_by_username(username: str, db: AsyncSession) -> User:
+    result = await db.execute(select(User).filter(func.lower(User.username) == func.lower(username)))
+    user = result.scalars().first()
    
     if not user:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with username: {username} does not exist.")
-    
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with username: {username} does not exist.")
     return user
 
-def get_user_by_id(id: int, db: Session) -> User:
-    user = db.query(User).filter(User.id == id).first()
+async def get_user_by_id(id: int, db: AsyncSession) -> User:
+    result = await db.execute(select(User).filter(User.id == id))
+    user = result.scalars().first()
 
     if not user:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User by id: {id} does not exist.")
-    
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User by id: {id} does not exist.")
     return user
 
-def update_user_by_id(id: int, updated_user: UserUpdate, db: Session) -> User:
-    user_query = db.query(User).filter(User.id == id)
-    user = user_query.first()
+async def update_user_by_id(id: int, updated_user: UserUpdate, db: AsyncSession) -> User:
+    
+    result = await db.execute(select(User).filter(User.id == id))
+    user = result.scalars().first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {id} does not exist")
@@ -73,19 +69,23 @@ def update_user_by_id(id: int, updated_user: UserUpdate, db: Session) -> User:
     if "password" in data:
         data["password"] = hash(data["password"])
 
-    user_query.update(data, synchronize_session=False)
-    db.commit()
-    db.refresh(user)  # ensure returned object is updated
+    
+    for key, value in data.items():
+        setattr(user, key, value)
 
+    await db.commit()
+    await db.refresh(user)
     return user
 
-def delete_user_by_id(id: int, db: Session):
-    user_query = db.query(User).filter(User.id == id)
-
-    if not user_query.first():
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User by id: {id} does not exist")
+async def delete_user_by_id(id: int, db: AsyncSession):
     
-    user_query.delete(synchronize_session = False)
-    db.commit()
+    result = await db.execute(select(User).filter(User.id == id))
+    user = result.scalars().first()
 
-    return Response(status_code = status.HTTP_204_NO_CONTENT)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User by id: {id} does not exist")
+    
+    await db.delete(user)
+    await db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
