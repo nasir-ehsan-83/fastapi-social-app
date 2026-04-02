@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.db import database
 from fastapi_offline_docs.offline_docs import setup_offline_docs
-from app.routers import user
+from app.routers import user, post
 
 
 app = FastAPI(docs_url=False, redoc_url=False)
@@ -13,3 +13,4 @@ async def init_tables():
         await conn.run_sync(database.Base.metadata.create_all)
 
 app.include_router(user.router)
+app.include_router(post.router)
