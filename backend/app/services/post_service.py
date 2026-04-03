@@ -1,11 +1,13 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from typing import List, Optional
 
 from app.models.post import Post
-from app.schemas.post import PostCreate
+from app.schemas.post import PostCreate, PostUpdate
 
 async def create_new_post(post_in: PostCreate, owner_id: int, db: AsyncSession) -> Post:
+
     new_post = Post(owner_id = owner_id, **post_in.model_dump())
     db.add(new_post)
 
@@ -13,3 +15,57 @@ async def create_new_post(post_in: PostCreate, owner_id: int, db: AsyncSession) 
     await db.refresh(new_post)
 
     return new_post
+
+# get a post
+async def get_one_post(post_id: int, owner_id: int, db: AsyncSession) -> Optional[Post]:
+
+    post_query = await db.execute(select(Post).filter(Post.id == post_id, Post.owner_id == owner_id))
+    post = post_query.scalars().first()
+
+    if not post:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with id {owner_id} does not have the post with id: {post_id}")
+    
+    return post
+
+# get all posts
+async def get_all_posts(owner_id: int, db: AsyncSession) -> Optional[List[Post]]:
+
+    post_query = await db.execute(select(Post).filter(Post.owner_id == owner_id))
+    posts = post_query.scalars().all()
+
+    if not posts:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with id: {owner_id} does not have any post")
+    
+    return posts
+
+# update post
+async def update_data(post_id: int, update_post: PostUpdate, owner_id: int, db: AsyncSession) -> Post:
+    
+    post_query = await db.execute(select(Post).filter(Post.id == post_id, Post.owner_id == owner_id))
+    post = post_query.scalars().first()
+
+    if not post: 
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with id: {owner_id} does not have the post with id: {post_id}")
+    
+    data = update_post.model_dump(exclude_unset = True)
+
+    for key, value in data:
+        setattr(post, key, value)
+
+    await db.commit()
+    await db.refresh(post)
+
+    return post
+
+# delete post
+async def delete_data(post_id: int, owner_id: int, db: AsyncSession) :
+    post_query = await db.execute(select(Post).filter(Post.id == post_id, Post.owner_id == owner_id))
+    post = post_query.scalars().first()
+
+    if not post:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User whit id: {owner_id} does not have the post by id: {post_id}")
+    
+    await db.delete(post)
+    await db.commit()
+
+    return Response(status_code = status.HTTP_204_NO_CONTENT)
