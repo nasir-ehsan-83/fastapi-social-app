@@ -20,7 +20,7 @@ async def create_user(user_in: UserCreate, db: AsyncSession) -> User:
     
     
     user_data = user_in.model_dump()
-    user_data["password"] = hash(user_data["password"])
+    user_data["password"] = await hash(user_data["password"])
 
     new_user = User(**user_data)
     db.add(new_user)
@@ -67,7 +67,7 @@ async def update_user_by_id(id: int, updated_user: UserUpdate, db: AsyncSession)
     
     data = updated_user.model_dump(exclude_unset=True)
     if "password" in data:
-        data["password"] = hash(data["password"])
+        data["password"] = await hash(data["password"])
 
     
     for key, value in data.items():
