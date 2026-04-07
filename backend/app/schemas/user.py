@@ -4,6 +4,7 @@ from datetime import datetime
 
 class UserBase(BaseModel):
     email: EmailStr
+    name: str = Field(min_length = 3, length = 50)
     username: str = Field(min_length=3, max_length=30)
 
     @field_validator("username", "email", mode="before")
@@ -24,6 +25,7 @@ class UserOut(UserBase):
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
+    name: Optional[str] = Field(None, min_length = 3, max_length = 50)
     username: Optional[str] = Field(None, min_length=3, max_length=30)
     password: Optional[str] = Field(None, min_length=8)
 
