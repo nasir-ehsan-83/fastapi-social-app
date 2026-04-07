@@ -27,9 +27,9 @@ async def get_post(id: int, current_user: int = Depends(get_current_user), db: A
 
 # get all posts
 @router.get('/', response_model = List[PostOut])
-async def get_posts(current_user: int = Depends(get_current_user), db: AsyncSession = Depends(get_db)) -> Optional[List[Post]]:
+async def get_posts(current_user: int = Depends(get_current_user), db: AsyncSession = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "") -> Optional[List[Post]]:
     # send the data to the post_service.py to performe operations 
-    return await get_all_posts(current_user, db)
+    return await get_all_posts(current_user, db, limit, skip, search)
 
 # update post
 @router.put('/{id}', response_model = PostOut)

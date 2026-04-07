@@ -8,7 +8,7 @@ from app.schemas.post import PostCreate, PostUpdate
 
 async def create_new_post(post_in: PostCreate, current_user: int, db: AsyncSession,) -> Post:
 
-    new_post = Post(owner_id = current_user.id, **post_in.model_dump())
+    new_post = Post(owner_id = int(current_user.id), **post_in.model_dump())
     db.add(new_post)
 
     await db.commit()
@@ -28,14 +28,11 @@ async def get_one_post(post_id: int, current_user: int, db: AsyncSession) -> Opt
     return post
 
 # get all posts
-async def get_all_posts(current_user: int, db: AsyncSession) -> Optional[List[Post]]:
+async def get_all_posts(current_user: int, db: AsyncSession, limit: int, skip: int, search: Optional[str]) -> Optional[List[Post]]:
 
-    post_query = await db.execute(select(Post).filter(Post.owner_id == int(current_user.id)))
+    post_query = await db.execute(select(Post).filter(Post.owner_id == int(current_user.id), Post.title.contains(search)).limit(limit).offset(skip))
     posts = post_query.scalars().all()
 
-    if not posts:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with id: {current_user.id} does not have any post")
-    
     return posts
 
 # update post
