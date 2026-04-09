@@ -49,6 +49,12 @@ async def get_user_by_username(username: str, db: AsyncSession) -> User:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with username: {username} does not exist.")
     return user
 
+async def get_users_by_name(name: str, db: AsyncSession) -> User:
+    user_query = await db.execute(select(User).filter(User.name.contains(name)))
+    users = user_query.scalars().all()
+
+    return users
+
 async def get_user_by_id(id: int, db: AsyncSession) -> User:
     result = await db.execute(select(User).filter(User.id == id))
     user = result.scalars().first()
@@ -57,18 +63,19 @@ async def get_user_by_id(id: int, db: AsyncSession) -> User:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User by id: {id} does not exist.")
     return user
 
-async def update_user_by_id(id: int, updated_user: UserUpdate, db: AsyncSession) -> User:
+async def update_user_by_id(updated_user: UserUpdate, current_user: int, db: AsyncSession) -> User:
     
-    result = await db.execute(select(User).filter(User.id == id))
+    result = await db.execute(select(User).filter(User.id == int(current_user.id)))
     user = result.scalars().first()
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {id} does not exist")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {current_user.id} does not exist")
     
     data = updated_user.model_dump(exclude_unset=True)
+    
     if "password" in data:
         data["password"] = await hash(data["password"])
-
+        
     
     for key, value in data.items():
         setattr(user, key, value)
@@ -77,13 +84,13 @@ async def update_user_by_id(id: int, updated_user: UserUpdate, db: AsyncSession)
     await db.refresh(user)
     return user
 
-async def delete_user_by_id(id: int, db: AsyncSession):
+async def delete_user_by_id(current_user: int, db: AsyncSession):
     
-    result = await db.execute(select(User).filter(User.id == id))
+    result = await db.execute(select(User).filter(User.id == int(current_user.id)))
     user = result.scalars().first()
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User by id: {id} does not exist")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User by id: {current_user.id} does not exist")
     
     await db.delete(user)
     await db.commit()
