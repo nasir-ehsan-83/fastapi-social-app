@@ -1,61 +1,125 @@
-# FastAPI Social Media Application 
+# 🚀 FastAPI Social Media Application
 
-A production-ready RESTful API built with **FastAPI**, focusing on security, scalability, and clean architecture. This project is currently the core backend for a full-stack social application.
+A **production-ready backend API** for a social media platform, built with modern Python technologies.  
+This project emphasizes **scalability, security, clean architecture, and real-world backend design**, serving as the backend core for a full-stack application with a React frontend.
 
 ---
 
-## Project Structure
-```
-fastapi-social-app
-│
+## 🎯 Project Overview
+
+This application is designed as a **real-world social media backend system**, implementing key engineering principles:
+
+- Modular architecture
+- Authentication & authorization
+- Database design & ORM
+- RESTful API best practices
+
+**Built using:**
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- JWT Authentication
+- React (frontend, in progress)
+
+---
+
+## 🏗 Project Structure
+
+```bash
+fastapi-social-app/
 ├── backend/
 │   ├── app/
-│   │   ├── core/    
-│   │   ├── db/ 
-│   │   ├── models/ 
-│   │   ├── routers/ 
-│   │   ├── schemas/
-│   │   ├── service/  
-│   │   ├── __init__.py
-│   │   └── main.py    
+│   │   ├── core/        # Configurations, settings, security
+│   │   ├── db/          # Database session & migrations
+│   │   ├── models/      # SQLAlchemy models
+│   │   ├── routers/     # API route definitions
+│   │   ├── schemas/     # Pydantic schemas
+│   │   ├── services/    # Business logic
+│   │   ├── utils/       # Helper functions
+│   │   └── main.py      # FastAPI entry point
 │   │
-│   ├── tests/ 
-│   ├── fastapi_offline_docs/ 
-│   ├── .env.example
-│   └── requirements.txt
+│   ├── tests/           # Unit & integration tests
+│   ├── .env.example     # Environment variables template
+│   └── requirements.txt # Python dependencies
 │
-├── frontend/
-├── LICENSE
+├── frontend/            # React frontend (planned)
 └── README.md
 ```
 
 ---
 
-## Tech Stack
-*   **Framework:** [FastAPI](https://fastapi.tiangolo.com) (Python)
-*   **Database:** [PostgreSQL](https://www.postgresql.org)
-*   **ORM:** [SQLAlchemy](https://www.sqlalchemy.org)
-*   **Security:** JWT Authentication & OAuth2
-*   **Validation:** Pydantic
-*   **Environment:** Fedora Linux
+## 🧠 Tech Stack
+**Backend:**
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Pydantic
+- JWT + OAuth2
+- passlib (password hashing)
+
+**Frontend:**
+- React (planned)
+- Axios (HTTP client)
 
 ---
 
-## Key Features
-- [ ] **User Management:** Registration and Profile models.
-- [ ] **JWT Authentication:** Secure login with hashed passwords using `passlib`.
-- [ ] **Relational Database:** Structured PostgreSQL schemas with SQLAlchemy.
-- [ ] **Modular Routing:** Clean code separation using `APIRouter`.
-- [ ] **Offline Documentation:** Custom Swagger UI setup for offline development.
+## ✨ Features
+
+- 🔐 User registration & authentication
+- 🔑 JWT-based login system
+- 🔒 Secure password hashing
+- 🗄 PostgreSQL database integration
+- 🌐 RESTful API design
+- 🧩 Modular architecture for scalability
 
 ---
 
-## Author
+## 🚧 Project Status
+- **Backend:** ✅ Completed
+- **Frontend:** 🚧 In Progress
+- **Deployment:** 📌 Planned
 
-**Nasir Ahmad Ehsan**
+---
 
-**Interested in:**
-- Backend Development
-- Programming Languages
-- Artificial Intelligence
-- Operating System Design
+## 🚀 Getting Started
+
+Clone the repository:
+```
+git clone https://github.com/USERNAME/fastapi-social-app.git
+cd fastapi-social-app
+```
+
+Create a virtual environment:
+```
+python -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
+```
+pip install -r backend/requirements.txt
+```
+
+Run the development server:
+```
+uvicorn backend.app.main:app --reload
+```
+
+---
+
+## 📌 API Documentation
+
+Interactive API docs available at:
+👉 http://127.0.0.1:8000/docs
+
+---
+
+## 👨‍💻 Author
+Nasir Ahmad Ehsan  
+Backend Developer | AI Enthusiast | Systems Programmer
+
+---
+
+## 📜 License
+This project is licensed under the MIT License.
+Feel free to use, modify, and distribute with proper attribution.
