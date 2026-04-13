@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from app.db.database import Base
 from app.models.user import User
 from app.models.post import Post
-from app.enums.vote_enum import ReactionType
+from app.enums.post import ReactionType
 
 
 class Vote(Base):
@@ -22,7 +22,10 @@ class Vote(Base):
         primary_key=True
     )
 
-    type = Column(EnumSQL(ReactionType), nullable = False)
+    type = Column(
+        EnumSQL(ReactionType), 
+        nullable = False
+    )
 
     user = relationship("User", back_populates="votes")
     post = relationship("Post", back_populates="votes")
