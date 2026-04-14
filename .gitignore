@@ -1,29 +1,103 @@
+# =========================
 # Python
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.venv/
-fsapi/
-.env
-venv/
+*.pyo
+*.pyc
 
+# virtual environments
+.venv/
+venv/
+env/
+
+# pytest / testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# dotenv / secrets
+.env
+.env.*
+!.env.example
+
+# =========================
+# FastAPI / App specific
+# =========================
+*.log
+logs/
+
+# If you use local uploads
+uploads/
+media/
+
+# =========================
+# Alembic / Database
+# =========================
+
+# alembic/versions/
+
+# temp/backup migration files only
+alembic/versions/*.py~
+alembic/versions/*.bak
+alembic/versions/*.tmp
+
+# local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL auth file
+.pgpass
+
+# dumps
+*.sql
+*.dump
+
+# =========================
 # Linux / Fedora
+# =========================
 .directory
 .Trash-*
 .fuse_hidden*
 
-# Editors
+# =========================
+# Editors / IDEs
+# =========================
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Database 
-*.sql
-*.dump
-.pgpass
-
-# Frontend 
+# =========================
+# Frontend (React / Next / Vue)
+# =========================
 node_modules/
 dist/
-.env.local
+build/
+out/
 
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Misc
+# =========================
+*.pid
+*.seed
+*.tgz
