@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -27,18 +27,18 @@ class Post(Base):
     )
 
     post_status = Column(
-        SQLEnum(PostStatus),
+        SQLEnum(*(e.value for e in PostStatus), name = "post_status_enum"),
         nullable = False,
         server_default = "published"
     )
 
     post_type = Column(
-        SQLEnum(PostType),
+        SQLEnum(*(e.value for e in PostType), name = "post_type_enum"),
         nullable = False
     )
 
     post_visibility = Column(
-        SQLEnum(PostVisibility),
+        SQLEnum(*(e.value for e in PostVisibility), name = "post_visibility_enum"),
         nullable = False
     )
 

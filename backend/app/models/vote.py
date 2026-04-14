@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, Enum as EnumSQL
+from sqlalchemy import Column, Integer, ForeignKey, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -23,7 +23,7 @@ class Vote(Base):
     )
 
     type = Column(
-        EnumSQL(ReactionType), 
+        SQLEnum(*(e.value for e in ReactionType), name = "reaction_type_enum"), 
         nullable = False
     )
 

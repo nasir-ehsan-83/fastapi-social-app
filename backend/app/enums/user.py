@@ -1,16 +1,16 @@
 from enum import Enum
 
 class UserRole(str, Enum):
-    admin: str = "admin"
-    super_user: str = "super_user"
-    user: str = "user"
+    ADMIN = "admin"
+    SUPER_USER = "super_user"
+    USER = "user"
 
 class UserStatus(str, Enum):
-    active: str = "active"
-    inactive : str = "inactive"
-    banned: str = "banned"
-    suspanded: str = "suspanded"
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    BANNED = "banned"
+    SUSPENDED = "suspended"  
 
 class UserVisibility(str, Enum):
-    public: str = "public"
-    private: str = "private"
+    PUBLIC = "public"
+    PRIVATE = "private"
