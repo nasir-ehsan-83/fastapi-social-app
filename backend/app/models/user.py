@@ -47,7 +47,8 @@ class User(Base):
 
     role = Column(
         SQLEnum(*(e.value for e in UserRole), name = "user_role_enum"),
-        nullable = False
+        nullable = False,
+        server_default = "user"
     )
 
     status = Column(
@@ -58,7 +59,8 @@ class User(Base):
 
     visibility = Column(
         SQLEnum(*(e.value for e in UserVisibility), name = "user_visibility_enum"),
-        nullable = False
+        nullable = False,
+        server_default = "public"
     )
 
     created_at = Column(
