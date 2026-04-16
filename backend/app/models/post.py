@@ -26,25 +26,26 @@ class Post(Base):
         nullable = False
     )
 
-    post_status = Column(
+    status = Column(
         SQLEnum(*(e.value for e in PostStatus), name = "post_status_enum"),
         nullable = False,
         server_default = "published"
     )
 
-    post_type = Column(
+    type = Column(
         SQLEnum(*(e.value for e in PostType), name = "post_type_enum"),
         nullable = False
     )
 
-    post_visibility = Column(
+    visibility = Column(
         SQLEnum(*(e.value for e in PostVisibility), name = "post_visibility_enum"),
-        nullable = False
+        nullable = False,
+        server_default = "public"
     )
 
-    post_media_url = Column(
+    media_url = Column(
         String, 
-        nullable = False
+        nullable = True
     )
 
     owner_id = Column(
