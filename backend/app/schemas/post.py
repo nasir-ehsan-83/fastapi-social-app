@@ -7,10 +7,10 @@ from app.schemas.user import UserOut
 class PostBase(BaseModel):
     title: str = Field(min_length = 3, max_length = 50)
     content: str = Field(max_length = 250)
-    post_status: str
-    post_type: str
-    post_visibility: str
-    post_media_url: str
+    status: str
+    type: str
+    visibility: str
+    media_url: str
 
 class PostCreate(PostBase):
     pass
@@ -26,8 +26,8 @@ class PostOut(PostBase):
 class PostUpdate(BaseModel):
     title: Optional[str] = Field(default = None, min_length = 3, max_length = 50)
     content: Optional[str] = Field(default = None, max_length = 250)
-    post_status: Optional[str] = None
-    post_type: Optional[str] = None
-    post_visibility: Optional[str] = None
-    post_media_url: Optional[str] = None
-    updated_at: datetime = Field(default_factory = datetime.utcnow)
+    status: Optional[str] = None
+    type: Optional[str] = None
+    visibility: Optional[str] = None
+    media_url: Optional[str] = None
+    updated_at: Optional[datetime] = Field(default = datetime.utcnow)
