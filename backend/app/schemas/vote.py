@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from app.enums.vote_enum import ReactionType
+from app.enums.post import ReactionType
 
 class VoteBase(BaseModel):
     post_id: int
