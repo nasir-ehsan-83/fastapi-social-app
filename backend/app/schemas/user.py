@@ -3,9 +3,14 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from datetime import datetime
 
 class UserBase(BaseModel):
-    email: EmailStr
-    name: str = Field(min_length = 3, length = 50)
+    name: str = Field(min_length = 1, length = 30)
+    lastname: Optional[str] = Field(length = 30)
     username: str = Field(min_length=3, max_length=30)
+    biography: Optional[str] = Field(max_length = 250)
+    email: EmailStr
+    role: str
+    status: str
+    visibility: str
 
     @field_validator("username", "email", mode="before")
     @classmethod
@@ -20,14 +25,17 @@ class UserCreate(UserBase):
 class UserOut(UserBase):
     id: int
     created_at: datetime
-    
+    updated_at: datetime
+     
     model_config = ConfigDict(from_attributes=True)
 
 class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None
-    name: Optional[str] = Field(None, min_length = 3, max_length = 50)
+    name: Optional[str] = Field(None, min_length = 1, max_length = 50)
+    lastname: Optional[str] = Field(None, length = 30)
     username: Optional[str] = Field(None, min_length=3, max_length=30)
-    password: Optional[str] = Field(None, min_length=8)
+    email: Optional[EmailStr] = None
+    password: Optional[str] = Field(None, min_length=8, max_length = 20)
+    biography: Optional[str] = Field(max_length = 250)
 
     @field_validator("username", "email", mode="before")
     @classmethod
