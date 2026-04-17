@@ -7,9 +7,9 @@ class VoteBase(BaseModel):
     vote_type: ReactionType
 
 class VoteCreate(VoteBase):
-    pass
+    vote: bool
 
 class VoteOut(VoteBase):
     user_id: int
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes = True)
