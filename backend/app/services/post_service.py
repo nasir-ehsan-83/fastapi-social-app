@@ -8,7 +8,7 @@ from app.schemas.post import PostCreate, PostUpdate
 
 async def create_new_post(post_in: PostCreate, current_user: int, db: AsyncSession,) -> Post:
 
-    new_post = Post(owner_id = int(current_user.id), **post_in.model_dump())
+    new_post = Post(owner_id = int(current_user.id), **post_in.model_dump(exclude_unset = True))
     db.add(new_post)
 
     await db.commit()
@@ -44,9 +44,9 @@ async def update_data(post_id: int, update_post: PostUpdate, current_user: int, 
     if not post: 
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"User with id: {current_user.id} does not have the post with id: {post_id}")
     
-    data = update_post.model_dump(exclude_unset = True)
-
-    for key, value in data:
+    data = update_post.model_dump(exclude_unset = True, exclude_none = True)
+    
+    for key, value in data.items():
         setattr(post, key, value)
 
     await db.commit()

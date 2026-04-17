@@ -32,7 +32,7 @@ async def get_posts(current_user: int = Depends(get_current_user), db: AsyncSess
     return await get_all_posts(current_user, db, limit, skip, search)
 
 # update post
-@router.put('/{id}', response_model = PostOut)
+@router.patch('/{id}', response_model = PostOut)
 async def update_post(id: int, update_post: PostUpdate, current_user: int = Depends(get_current_user), db: AsyncSession = Depends(get_db)) -> Post:
     # send the data to the post_service.py to performe operations 
     return await update_data(id, update_post, current_user, db)
