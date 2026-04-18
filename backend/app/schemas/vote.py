@@ -4,7 +4,7 @@ from app.enums.post import ReactionType
 
 class VoteBase(BaseModel):
     post_id: int
-    vote_type: ReactionType
+    type: ReactionType
 
 class VoteCreate(VoteBase):
     vote: bool
