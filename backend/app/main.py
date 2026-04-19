@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.db import database
 from fastapi_offline_docs.offline_docs import setup_offline_docs
-from app.routers import user, post, auth
+from app.routers import auth, user, post, vote
 
 
 app = FastAPI(docs_url=False, redoc_url=False)
@@ -15,3 +15,4 @@ async def init_tables():
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(post.router)
+app.include_router(vote.router)
