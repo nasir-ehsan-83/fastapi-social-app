@@ -17,7 +17,7 @@ async def create_vote(vote_in: VoteCreate, owner_id: int, db: AsyncSession = Dep
 
     return await create_new_vote(vote_in, owner_id, db)
 
-@router.get('/post_id', response_model = List[VoteOut])
+@router.get('/post_id/{post_id}', response_model = List[VoteOut])
 async def get_votes(post_id: int, db: AsyncSession = Depends(get_db)) -> List[VoteOut]:
 
     return await get_all_votes(post_id, db)

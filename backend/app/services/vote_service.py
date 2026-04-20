@@ -69,7 +69,7 @@ async def create_new_vote(vote_in: VoteCreate, owner_id: int, db: AsyncSession) 
 # get all votes of a post
 async def get_all_votes(post_id: int, db: AsyncSession) -> List[Vote]:
     # get the post from database
-    post_query = await db.execute(select(Post).filet(Post.id == post_id))
+    post_query = await db.execute(select(Post).filter(Post.id == post_id))
     existance_post = post_query.scalars().first()
 
     # if post does not exits
