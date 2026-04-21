@@ -8,8 +8,6 @@ class UserBase(BaseModel):
     username: str = Field(min_length=3, max_length=30)
     biography: Optional[str] = Field(max_length = 250)
     email: EmailStr
-    role: str
-    status: str
     visibility: str
 
     @field_validator("username", "email", mode="before")
@@ -19,15 +17,35 @@ class UserBase(BaseModel):
             return v.strip().lower()
         return v
 
+# schema for adding new user
 class UserCreate(UserBase):
+    role: str
+    status: str
     password: str = Field(min_length=8)
 
-class UserOut(UserBase):
+# schemas's response for admin role
+class UserAdminOut(UserBase):
     id: int
+    role: str
+    status: str
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(from_attributes = True)
+
+# schema's response for owner account information
+class UserPrivateOut(UserBase):
+    id: int
      
     model_config = ConfigDict(from_attributes=True)
+
+# schema's response for all user to see information
+class UserPublicOut(BaseModel):
+    id: int
+    name:str
+    lastname: str
+
+    model_config = ConfigDict(from_attributes = True)
 
 class UserUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length = 1, max_length = 50)
