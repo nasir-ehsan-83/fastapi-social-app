@@ -47,7 +47,7 @@ class UserPublicOut(BaseModel):
 
     model_config = ConfigDict(from_attributes = True)
 
-class UserUpdate(BaseModel):
+class UpdateField(BaseModel):
     name: Optional[str] = Field(None, min_length = 1, max_length = 50)
     lastname: Optional[str] = Field(None, length = 30)
     username: Optional[str] = Field(None, min_length=3, max_length=30)
@@ -61,3 +61,7 @@ class UserUpdate(BaseModel):
         if v is not None and isinstance(v, str):
             return v.strip().lower()
         return v
+
+class UserUpdate(BaseModel):
+    email: EmailStr
+    update_data: UpdateField
