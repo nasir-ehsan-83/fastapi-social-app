@@ -64,16 +64,22 @@ async def get_user_by_id(id: int, db: AsyncSession) -> User:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User by id: {id} does not exist.")
     return user
 
-async def update_user_by_id(updated_user: UserUpdate, current_user: int, db: AsyncSession) -> User:
-    
-    result = await db.execute(select(User).filter(User.id == int(current_user.id)))
+async def update_user_by_email(updated_user: UserUpdate, current_user: int, db: AsyncSession) -> User:
+    # get user from database by email and current id
+    result = await db.execute(select(User).filter(User.email == updated_user.email, User.id == int(current_user.id)))
     user = result.scalars().first()
 
+    # if there is not any user by this email
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {current_user.id} does not exist")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"User with email: {updated_user.email} does not exist"
+        )
     
+    # delete undefined or null elements
     data = updated_user.model_dump(exclude_unset=True)
     
+    # if there is a password element then hash it
     if "password" in data:
         data["password"] = await hash(data["password"])
         
@@ -85,15 +91,20 @@ async def update_user_by_id(updated_user: UserUpdate, current_user: int, db: Asy
     await db.refresh(user)
     return user
 
-async def delete_user_by_id(current_user: int, db: AsyncSession):
-    
-    result = await db.execute(select(User).filter(User.id == int(current_user.id)))
+async def delete_user_by_email(email: str, current_user: int, db: AsyncSession):
+    # get user from database at first 
+    result = await db.execute(select(User).filter(User.id == int(current_user.id), User.email == email))
     user = result.scalars().first()
 
+    # if there is not any user by this email
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User by id: {current_user.id} does not exist")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"User by emial: {email} does not exist"
+        )
     
+    # if the user exists then delete this
     await db.delete(user)
     await db.commit()
 
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return Response(status_code = status.HTTP_204_NO_CONTENT)
