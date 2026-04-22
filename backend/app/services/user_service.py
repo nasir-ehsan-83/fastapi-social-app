@@ -49,8 +49,9 @@ async def get_user_by_username(username: str, db: AsyncSession) -> User:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with username: {username} does not exist.")
     return user
 
-async def get_users_by_name(name: str, db: AsyncSession) -> User:
-    user_query = await db.execute(select(User).filter(User.name.contains(name)))
+async def get_users_by_name(name: str, limit: int, skip: int, db: AsyncSession) -> User:
+    # get users by name with limit
+    user_query = await db.execute(select(User).filter(User.name.contains(name)).limit(limit).offset(skip))
     users = user_query.scalars().all()
 
     return users

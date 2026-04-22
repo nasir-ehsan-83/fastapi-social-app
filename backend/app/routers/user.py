@@ -45,8 +45,8 @@ async def get_user_email(email: Optional[str] = None, username: Optional[str] = 
 
 # get user by name
 @router.get('/search', response_model = List[UserPublicOut])
-async def get_user_name(name: str, db: AsyncSession = Depends(get_db)) -> List[User]:
-    return await get_users_by_name(name, db)
+async def get_user_name(name: str, limit: int = 10, skip: int = 0, db: AsyncSession = Depends(get_db)) -> List[User]:
+    return await get_users_by_name(name, limit, skip, db)
 
 # get user by id
 @router.get('/id/{id}', response_model=UserAdminOut)
