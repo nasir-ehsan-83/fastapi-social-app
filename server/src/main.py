@@ -2,13 +2,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.common.errors.handlers import init_error_handlers
+from src.common.errors import init_error_handlers
 from src.db import database
-
-from src.modules.auth import routes as auth_routes
-from src.modules.users import routes as users_routes
-from src.modules.posts import routes as posts_routes
-from src.modules.votes import routes as votes_routes
+from src.core import cosr_config
+from src.modules import (
+    auth_routes,
+    users_routes,
+    posts_routes,
+    votes_routes
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,12 +19,19 @@ async def lifespan(app: FastAPI):
     yield
     await database.engine.dispose()
 
-app = FastAPI(lifespan = lifespan)
+app: FastAPI = FastAPI(lifespan = lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = cosr_config["origins"],
+    allow_credentials = cosr_config["is_credentials_allowed"],
+    allow_methods = cosr_config["methods"],
+    allow_headers = cosr_config["headers"]
+)
 
 init_error_handlers(app)
 
-app.include_router(auth_routes.router)
-app.include_router(users_routes.router)
-app.include_router(posts_routes.router)
-app.include_router(votes_routes.router)
+app.include_router(auth_routes)
+app.include_router(users_routes)
+app.include_router(posts_routes)
+app.include_router(votes_routes)
