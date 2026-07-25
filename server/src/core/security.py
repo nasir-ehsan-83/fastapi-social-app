@@ -3,7 +3,7 @@ from fastapi.concurrency import run_in_threadpool
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-async def hash(password: str) -> str:
+async def hash_password(password: str) -> str:
     # bcrypt has a 72-byte limit; truncating safely
     password_bytes = password.encode("utf-8")[:72]
 
@@ -12,7 +12,7 @@ async def hash(password: str) -> str:
     # Offload the heavy hashing to a threadpool
     return await run_in_threadpool(password_context.hash, password_truncated)
 
-async def verify(plain_password: str, hashed_password: str) -> bool:
+async def verify_password(plain_password: str, hashed_password: str) -> bool:
     if not hashed_password:
         return False
     
