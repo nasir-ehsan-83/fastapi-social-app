@@ -1,19 +1,36 @@
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Annotated
+from typing import Annotated, Dict
 from fastapi import (
-    APIRouter, 
-    Depends
+    APIRouter,
+    Depends,
+    Request,
+    Response
 )
-from src.db.database import get_db
+from src.db import get_db
 from src.modules.auth.schemas import Token
-from src.modules.auth.services import login
+from src.modules.auth.services import (
+    handle_login, 
+    handle_refresh_token
+)
+
+
 
 router = APIRouter(
-    tags = ["Authentication"]
+    prefix = '/api/auth',
+    tags = ["Auth"]
 )
 
+
+
+
 @router.post('/login', response_model = Token)
-async def user_login(user_credential: Annotated[OAuth2PasswordRequestForm, Depends()], db: AsyncSession = Depends(get_db)):
-    # perform login logic in auth_service.py
-    return await login(user_credential, db)
+async def login(
+    response: Response,
+    user_credential: Annotated[OAuth2PasswordRequestForm, Depends()], 
+    db: AsyncSession = Depends(get_db)
+) -> Dict[str, str]:
+    
+    return await handle_login(response, user_credential, db)
+
+
