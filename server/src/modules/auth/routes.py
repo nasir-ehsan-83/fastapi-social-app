@@ -34,3 +34,15 @@ async def login(
     return await handle_login(response, user_credential, db)
 
 
+
+
+@router.post('/refresh')
+async def refresh(
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+) -> Dict[str, str]:
+
+    return await handle_refresh_token(request, response, db)
+
+

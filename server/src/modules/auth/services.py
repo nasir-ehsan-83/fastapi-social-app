@@ -94,3 +94,115 @@ async def handle_login(
 
 
 
+    
+async def handle_refresh_token(
+    request: Request,
+    response: Response,
+    db: AsyncSession
+) -> Dict[str, str]:
+
+    try:
+
+        refresh_token = request.cookies.get(
+            "refresh_token"
+        )
+
+
+        if not refresh_token:
+
+            raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail = "Refresh token not found"
+            )
+
+
+        payload: Dict[str, Any] = await verify_refresh_token(
+            refresh_token,
+            HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail = "Unauthorized"
+            )
+        )
+
+
+        user_id = payload.get("user_id")
+        jti = payload.get("jti")
+
+
+        if not user_id or not jti:
+
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid refresh token"
+            )
+
+        user: User | None = await get_user_by_id(
+            user_id,
+            db
+        )
+
+
+        if user is None:
+
+            raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail = "User not found"
+            )
+
+
+        if user.status != "active":
+
+            raise HTTPException(
+                status_code = status.HTTP_403_FORBIDDEN,
+                detail = "User account is inactive"
+            )
+
+        await revoke_refresh_token(
+            user_id,
+            jti
+        )
+
+        access_token = await create_access_token(
+            {
+                "id": user.id,
+                "role": user.role
+            }
+        )
+
+        new_refresh_token, new_jti = await create_refresh_token(
+            {
+                "id": user.id,
+                "role": user.role
+            }
+        )
+
+        await save_refresh_token(
+            user.id,
+            new_jti
+        )
+
+        response.set_cookie(
+            key = "jwt",
+            value = new_refresh_token,
+            httponly = True,
+            max_age = settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400
+            # secure = True, samesite = "lax"  <-  for production security
+        )
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
+
+
+    except HTTPException:
+        raise
+
+
+    except Exception as error:
+
+        raise HTTPException(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail = "Internal server error"
+        )
+    
