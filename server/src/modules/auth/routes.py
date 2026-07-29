@@ -10,7 +10,8 @@ from fastapi import (
 from src.db import get_db
 from src.modules.auth.schemas import Token
 from src.modules.auth.services import (
-    handle_login, 
+    handle_login,
+    handle_logout, 
     handle_refresh_token
 )
 
@@ -46,3 +47,12 @@ async def refresh(
     return await handle_refresh_token(request, response, db)
 
 
+
+
+@router.post("/logout")
+async def logout(
+    request: Request,
+    response: Response
+):
+    
+    return await handle_logout(request, response)

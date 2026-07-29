@@ -206,3 +206,65 @@ async def handle_refresh_token(
             detail = "Internal server error"
         )
     
+
+
+
+async def handle_logout(
+        request: Request,
+    response: Response
+):
+
+    try:
+
+        refresh_token = request.cookies.get("jwt")
+        response = Response(status_code = status.HTTP_204_NO_CONTENT)
+
+
+        if not refresh_token:
+
+            raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail = "Refresh token not found"
+            )
+
+        payload = await verify_refresh_token(
+            refresh_token,
+            HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail = "Invalid refresh token"
+            )
+        )
+
+        user_id = payload.get("id")
+        jti = payload.get("jti")
+
+
+        if not user_id or not jti:
+
+            raise HTTPException(
+                status_code = 401,
+                detail = "Invalid refresh token"
+            )
+
+        await revoke_refresh_token(
+            user_id,
+            jti
+        )
+
+        response.delete_cookie(
+            key = "refresh_token"
+        )
+
+        return {
+            "message": "Successfully logged out"
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception:
+
+        raise HTTPException(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail = "Internal server error"
+        )
