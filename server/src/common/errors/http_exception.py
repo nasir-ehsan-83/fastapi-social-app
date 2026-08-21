@@ -1,8 +1,13 @@
+from typing import (
+    Any, 
+    Dict
+)
 from fastapi import status
-from common.errors.business_codes import ErrorCode
+
+from src.common.errors import ErrorCode
 
 class AppBaseException(Exception):
-    def __init__(self, message: str, status_code: int, error_code: ErrorCode, details: dict = None):
+    def __init__(self, message: str, status_code: int, error_code: ErrorCode, details: Dict[str, Any] | None = None):
         self.message = message
         self.status_code = status_code
         self.error_code = error_code

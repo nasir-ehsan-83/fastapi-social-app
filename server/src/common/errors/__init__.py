@@ -1,5 +1,5 @@
-from common.errors.business_codes import ErrorCode
-from common.errors.http_exception import (
+from src.common.errors.business_codes import ErrorCode
+from src.common.errors.http_exception import (
     AppBaseException,
     NotFoundException,
     BadRequestException,
@@ -7,7 +7,7 @@ from common.errors.http_exception import (
     ForbiddenException,
     ConflictException
 )
-from common.errors.handlers import init_error_handlers
+from src.common.errors.handlers import init_error_handlers
 
 __all__ = [
     "ErrorCode",

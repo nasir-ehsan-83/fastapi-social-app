@@ -4,8 +4,10 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from common.errors.http_exception import AppBaseException
-from common.errors.business_codes import ErrorCode
+from src.common.errors import (
+    AppBaseException, 
+    ErrorCode
+)
 
 logger = logging.getLogger("gapgram_app")
 
@@ -13,7 +15,7 @@ def init_error_handlers(app: FastAPI) -> None:
     
     # custom application business exceptions
     @app.exception_handler(AppBaseException)
-    async def app_exception_handler(request: Request, exc: AppBaseException):
+    async def app_exception_handler(request: Request, exc: AppBaseException) -> JSONResponse: # type: ignore
         return JSONResponse(
             status_code = exc.status_code,
             content = {
@@ -28,7 +30,7 @@ def init_error_handlers(app: FastAPI) -> None:
 
     # input validation exceptions
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse: # type: ignore
         formatted_errors = {}
         for error in exc.errors():
             field_name = " -> ".join(str(loc) for loc in error["loc"] if loc != "body")
@@ -48,7 +50,7 @@ def init_error_handlers(app: FastAPI) -> None:
 
     # default web server built-in route/http-exceptions
     @app.exception_handler(StarletteHTTPException)
-    async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse: # type: ignore
         if exc.status_code == 404:
             code = ErrorCode.ROUTE_NOT_FOUND.value
             message = f"The route {request.method} {request.url.path} does not exist on this server."
@@ -73,7 +75,7 @@ def init_error_handlers(app: FastAPI) -> None:
 
     # global fallback handler for uncaught runtime crashes (500 Internal Server Errors)
     @app.exception_handler(Exception)
-    async def global_exception_handler(request: Request, exc: Exception):
+    async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse: # type: ignore
         # logs full traceback with error context to make backend debugging simple
         logger.error(f"Critical System Crash on {request.method} {request.url.path}: {str(exc)}", exc_info = True)
         
