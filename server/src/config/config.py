@@ -1,4 +1,8 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
+from pydantic_settings import (
+    BaseSettings, 
+    SettingsConfigDict
+)
 
 class Settings(BaseSettings):
     DATABASE_HOSTNAME: str
@@ -6,6 +10,9 @@ class Settings(BaseSettings):
     DATABASE_USERNAME: str
     DATABASE_PASSWORD: str
     DATABASE_NAME: str
+    
+    REDIS_HOST: str
+    REDIS_PORT: int
     
     ACCESS_TOKEN_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
@@ -16,7 +23,7 @@ class Settings(BaseSettings):
     ALGORITHM: str
 
     DEBUG: bool 
-    ALLOWED_HOSTS: list 
+    ALLOWED_HOSTS: List[str] 
     LOG_LEVEL: str
 
     model_config = SettingsConfigDict(
@@ -25,4 +32,4 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-settings = Settings()
+settings: Settings = Settings() # type: ignore
