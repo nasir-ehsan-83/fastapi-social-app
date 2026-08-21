@@ -1,9 +1,9 @@
-from .config import Settings
+from src.config import ConfigSettings
 from pydantic_settings import SettingsConfigDict
 
-class ProductionSettings(Settings):
-    DEBUG: bool = False
-    LOG_LEVEL: str = "INFO"
+class ProductionSettings(ConfigSettings):
+    DEBUG: bool
+    LOG_LEVEL: str
     
     model_config = SettingsConfigDict(
         env_file=(".env", ".env.production"),
@@ -11,4 +11,4 @@ class ProductionSettings(Settings):
         extra="ignore"
     )
 
-prod_settings = ProductionSettings()
+prod_settings: ProductionSettings = ProductionSettings() # type: ignore
